@@ -1,16 +1,41 @@
-// function to get items from backend
+let savedItems = [
+  {
+    _id: "1",
+    title: "Black Hoodie",
+    imageUrl: "https://picsum.photos/300/200?random=1",
+    price: 45,
+  },
+  {
+    _id: "2",
+    title: "Blue Jacket",
+    imageUrl: "https://picsum.photos/300/200?random=2",
+    price: 60,
+  },
+];
+
 export function getItems() {
-  return fetch("http://localhost:3001/items")
-    .then((res) => {
-      if (!res.ok) {
-        return Promise.reject(`Error: ${res.status}`);
-      }
+  return new Promise((resolve) => {
+    resolve(savedItems);
+  });
+}
 
-      return res.json();
-    })
+export function saveItem(item) {
+  return new Promise((resolve) => {
+    const newItem = {
+      _id: Date.now().toString(),
+      title: item.title,
+      imageUrl: item.images?.[0] || item.imageUrl,
+      price: item.price,
+    };
 
-    .catch((err) => {
-      console.error("API error:", err);
-      throw err;
-    });
+    savedItems.push(newItem);
+    resolve(newItem);
+  });
+}
+
+export function deleteItem(itemId) {
+  return new Promise((resolve) => {
+    savedItems = savedItems.filter((item) => item._id !== itemId);
+    resolve({ message: "Deleted" });
+  });
 }
