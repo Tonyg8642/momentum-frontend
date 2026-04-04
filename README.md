@@ -48,3 +48,7 @@ src/
   App.jsx
   index.css
 ```
+
+## Stage 1.2 Submission
+
+This project includes third-party API integration, loading states, error handling, progressive rendering with the Show More button, and simulated frontend auth behavior for review.
