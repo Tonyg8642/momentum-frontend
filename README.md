@@ -1,18 +1,19 @@
 # Momentum Frontend
 
-Momentum is a React front-end clothing and outfit planning application. It lets users browse clothing items, add new items, sign in through a front-end modal flow, and interact with a clean responsive interface.
+Momentum is a React front-end clothing and outfit planning application. It allows users to browse clothing items, sign in through a modal interface, add new items dynamically, and interact with a responsive shopping-style layout.
 
 ## Features
 
 - Responsive layout for desktop, tablet, and mobile
+- Reusable React components
 - Header, hero section, item grid, and footer
 - Sign In modal
 - Add Item modal
 - Dynamic item rendering with React state
 - Add to Cart functionality
-- Show More button for loading more visible items
-- Fetches clothing items from a third-party API
-- Fallback data if the API fails
+- Show More button for progressive item display
+- Third-party API integration
+- Fallback data support if the API request fails
 - Clean component-based architecture
 
 ## Tech Stack
@@ -25,7 +26,7 @@ Momentum is a React front-end clothing and outfit planning application. It lets 
 
 ## How It Works
 
-The app fetches clothing items from an external API and displays them in a responsive grid. If the API request fails, fallback item data is used so the UI still works properly. Users can also sign in through a front-end modal, add new clothing items, and add items to the cart.
+The application fetches clothing items from an external API and displays them in a responsive grid layout. If the API request fails, fallback item data is loaded so the interface continues to function properly. Users can sign in through a front-end modal, add new clothing items, and add items to the cart.
 
 ## Project Structure
 
