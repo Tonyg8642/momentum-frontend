@@ -1,18 +1,30 @@
 import { useEffect, useState } from "react";
-import Header from "./components/Header";
-import Hero from "./components/Hero";
-import Main from "./components/Main";
-import Footer from "./components/Footer";
-import LoginModal from "./components/LoginModal";
-import AddItemModal from "./components/AddItemModal";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import "./index.css";
+
+import Header from "./components/Header/Header";
+import Main from "./components/Main/Main";
+import Footer from "./components/Footer/Footer";
+import Cart from "./components/Cart/Cart";
+import LoginModal from "./components/LoginModal/LoginModal";
+import AddItemModal from "./components/AddItemModal/AddItemModal";
+
 import { getThirdPartyItems } from "./utils/ThirdPartyApi";
+import { fallbackItems } from "./utils/Data";
+import { authorize, checkToken } from "./utils/auth";
 
 function App() {
   const [items, setItems] = useState([]);
+  const [cartItems, setCartItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [visibleCount, setVisibleCount] = useState(3);
   const [activeModal, setActiveModal] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     setIsLoading(true);
@@ -20,73 +32,39 @@ function App() {
 
     getThirdPartyItems()
       .then((data) => {
-        console.log("FROM THIRD PARTY API:", data);
-        setItems(data);
+        if (data && data.length > 0) {
+          setItems(data);
+        } else {
+          setItems([]);
+        }
       })
-      .catch((err) => {
-        console.error("Third-party API error:", err);
-
-        setItems([
-          {
-            id: 1,
-            title: "Classic White T-Shirt",
-            price: 25,
-            image:
-              "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=800&q=80",
-            category: { name: "Top" },
-          },
-          {
-            id: 2,
-            title: "Black Denim Jacket",
-            price: 65,
-            image:
-              "https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=800&q=80",
-            category: { name: "Outerwear" },
-          },
-          {
-            id: 3,
-            title: "Beige Cargo Pants",
-            price: 48,
-            image:
-              "https://images.unsplash.com/photo-1506629905607-d9df11cc1ceb?auto=format&fit=crop&w=800&q=80",
-            category: { name: "Bottom" },
-          },
-          {
-            id: 4,
-            title: "Neutral Sneakers",
-            price: 72,
-            image:
-              "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80",
-            category: { name: "Shoes" },
-          },
-          {
-            id: 5,
-            title: "Grey Overshirt",
-            price: 54,
-            image:
-              "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=800&q=80",
-            category: { name: "Layer" },
-          },
-          {
-            id: 6,
-            title: "Relaxed Fit Jeans",
-            price: 58,
-            image:
-              "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=800&q=80",
-            category: { name: "Denim" },
-          },
-        ]);
-
-        setError("");
+      .catch(() => {
+        setError(
+          "Sorry, something went wrong during the request.\nThere may be a connection issue or the server may be down.\nPlease try again later.",
+        );
+        setItems(fallbackItems);
       })
       .finally(() => {
         setIsLoading(false);
       });
   }, []);
 
-  function handleShowMore() {
-    setVisibleCount((prevCount) => prevCount + 3);
-  }
+  useEffect(() => {
+    const token = localStorage.getItem("jwt");
+
+    if (!token) return;
+
+    checkToken(token)
+      .then((userData) => {
+        setIsLoggedIn(true);
+        setCurrentUser(userData);
+      })
+      .catch(() => {
+        localStorage.removeItem("jwt");
+        setIsLoggedIn(false);
+        setCurrentUser(null);
+      });
+  }, []);
 
   function openLoginModal() {
     setActiveModal("login");
@@ -100,47 +78,119 @@ function App() {
     setActiveModal("");
   }
 
-  const visibleItems = items.slice(0, visibleCount);
+  function handleLoginSubmit({ email, password, name }) {
+    authorize(email, password)
+      .then((data) => {
+        localStorage.setItem("jwt", data.token);
+        setIsLoggedIn(true);
+        setCurrentUser({ name: name || "Tony" });
+        closeActiveModal();
+      })
+      .catch(() => {
+        setError("Login failed. Please try again.");
+      });
+  }
+
+  function handleAddItemSubmit(newItem) {
+    const itemWithId = {
+      ...newItem,
+      id: Date.now(),
+    };
+
+    setItems((prevItems) => [itemWithId, ...prevItems]);
+    closeActiveModal();
+  }
+
+  function handleAddToCart(item) {
+    setCartItems((prevItems) => [...prevItems, item]);
+
+    if (isLoggedIn) {
+      navigate("/cart");
+    } else {
+      openLoginModal();
+    }
+  }
+
+  function handleRemoveFromCart(idToRemove) {
+    setCartItems((prevItems) =>
+      prevItems.filter((item, index) => `${item.id}-${index}` !== idToRemove),
+    );
+  }
+
+  function handleShowMore() {
+    setVisibleCount((prevCount) => prevCount + 3);
+  }
+
+  function handleSignOut() {
+    localStorage.removeItem("jwt");
+    setIsLoggedIn(false);
+    setCurrentUser(null);
+    setCartItems([]);
+    navigate("/");
+  }
+
+  const filteredItems = items.filter((item) =>
+    item.title.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
+  const visibleItems = filteredItems.slice(0, visibleCount);
+  const hasMore = filteredItems.length > visibleCount;
 
   return (
-    <div className="page">
-      <Header onLoginClick={openLoginModal} onAddClick={openAddItemModal} />
-      <Hero />
+    <div className="app">
+      <Header
+        onLoginClick={openLoginModal}
+        onAddClick={openAddItemModal}
+        cartCount={cartItems.length}
+        isLoggedIn={isLoggedIn}
+        currentUser={currentUser}
+        onLogout={handleSignOut}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+      />
 
-      <main className="content">
-        {isLoading && <p className="status">Loading...</p>}
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <Main
+              items={visibleItems}
+              isLoading={isLoading}
+              error={error}
+              onShowMore={handleShowMore}
+              hasMore={hasMore}
+              searchTerm={searchTerm}
+              onAddToCart={handleAddToCart}
+            />
+          }
+        />
 
-        {!isLoading && error && <p className="status error">{error}</p>}
-
-        {!isLoading && !error && items.length === 0 && (
-          <p className="status">Nothing found</p>
-        )}
-
-        {!isLoading && !error && items.length > 0 && (
-          <>
-            <Main items={visibleItems} />
-
-            {visibleCount < items.length && (
-              <div className="show-more-container">
-                <button
-                  className="show-more-button"
-                  type="button"
-                  onClick={handleShowMore}
-                >
-                  Show more
-                </button>
-              </div>
-            )}
-          </>
-        )}
-      </main>
+        <Route
+          path="/cart"
+          element={
+            isLoggedIn ? (
+              <Cart
+                selectedItems={cartItems}
+                onRemoveFromCart={handleRemoveFromCart}
+              />
+            ) : (
+              <Navigate to="/" replace />
+            )
+          }
+        />
+      </Routes>
 
       <Footer />
 
-      {activeModal === "login" && <LoginModal onClose={closeActiveModal} />}
+      {activeModal === "login" && (
+        <LoginModal onClose={closeActiveModal} onLogin={handleLoginSubmit} />
+      )}
 
       {activeModal === "add-item" && (
-        <AddItemModal onClose={closeActiveModal} />
+        <AddItemModal
+          onClose={closeActiveModal}
+          onAddItem={handleAddItemSubmit}
+        />
       )}
     </div>
   );

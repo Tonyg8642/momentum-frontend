@@ -1,35 +1,7 @@
-export function authorize(email, password) {
-  return new Promise((resolve) => {
-    resolve({
-      token: "fake-jwt-token",
-    });
-  });
-}
+export const authorize = () => Promise.resolve({ token: "fake-jwt-token" });
 
-export function register(name, email, password) {
-  return new Promise((resolve) => {
-    resolve({
-      data: {
-        name,
-        email,
-        _id: "fake-user-id-123",
-      },
-    });
-  });
-}
+export const checkToken = () =>
+  Promise.resolve({ name: "Tony", avatar: "https://i.pravatar.cc/150" });
 
-export function checkToken(token) {
-  return new Promise((resolve, reject) => {
-    if (token) {
-      resolve({
-        data: {
-          name: "Tony",
-          email: "fake@example.com",
-          _id: "fake-user-id-123",
-        },
-      });
-    } else {
-      reject(new Error("Invalid token"));
-    }
-  });
-}
+export const register = (name, email) =>
+  Promise.resolve({ name, email, _id: "fake-user-id-123" });

@@ -52,3 +52,10 @@ src/
 ## Stage 1.2 Submission
 
 This project includes third-party API integration, loading states, error handling, progressive rendering with the Show More button, and simulated frontend auth behavior for review.
+
+
+<!--1. Make a folder inside of Components. Example: Header then inside it would be Header.jsx, and Header.css. Do for all files. Follow BEM structure.
+
+    2. Add an additional media quere so it fits in a column when shinking page.
+    
+    3. Add a protected route so information is protected in card route. -->
