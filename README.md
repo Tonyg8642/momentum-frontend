@@ -59,3 +59,10 @@ This project includes third-party API integration, loading states, error handlin
     2. Add an additional media quere so it fits in a column when shinking page.
     
     3. Add a protected route so information is protected in card route. -->
+
+
+## Project Pitch Video
+
+Check out [this video](## Project Pitch Video
+
+Check out [this video](https://drive.google.com/file/d/1F_1d5fn_oafDXsRTmE2qJeMG_YDqx4QB/view?usp=sharing), where I describe my project and some challenges I faced while building it.), where I describe my project and some challenges I faced while building it.
