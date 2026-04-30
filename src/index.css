@@ -183,6 +183,21 @@ button {
   line-height: 1.5;
 }
 
+.main__login-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #1f1f1f;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.main__login-link:hover {
+  color: #555;
+}
+
 .main__more-button {
   display: block;
   margin: 32px auto 0;

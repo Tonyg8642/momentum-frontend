@@ -7,7 +7,7 @@ function Header({
   cartCount,
   isLoggedIn,
   currentUser,
-  onLogout,
+  onSignOutClick,
   searchTerm,
   setSearchTerm,
 }) {
@@ -37,7 +37,11 @@ function Header({
             Sign In
           </button>
         ) : (
-          <button className="header__button" type="button" onClick={onLogout}>
+          <button
+            className="header__button"
+            type="button"
+            onClick={onSignOutClick}
+          >
             Sign Out
           </button>
         )}

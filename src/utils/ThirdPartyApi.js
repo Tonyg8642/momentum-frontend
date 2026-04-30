@@ -3,9 +3,29 @@ const baseUrl = "https://api.escuelajs.co/api/v1/products";
 function sanitizeImage(raw) {
   if (!raw) return "";
   // API sometimes returns images as a stringified array e.g. '["https://..."]'
-  const cleaned = String(raw)
-    .trim()
-    .replace(/^\["?|"?\]$/g, "");
+  let cleaned = String(raw).trim();
+
+  // Remove outer quotes if present
+  if (
+    (cleaned.startsWith('"') && cleaned.endsWith('"')) ||
+    (cleaned.startsWith("'") && cleaned.endsWith("'"))
+  ) {
+    cleaned = cleaned.slice(1, -1);
+  }
+
+  // Remove array brackets if present
+  if (cleaned.startsWith("[") && cleaned.endsWith("]")) {
+    cleaned = cleaned.slice(1, -1);
+  }
+
+  // Remove quotes around URL if present
+  if (
+    (cleaned.startsWith('"') && cleaned.endsWith('"')) ||
+    (cleaned.startsWith("'") && cleaned.endsWith("'"))
+  ) {
+    cleaned = cleaned.slice(1, -1);
+  }
+
   return cleaned.startsWith("http") ? cleaned : "";
 }
 

@@ -8,6 +8,7 @@ import Footer from "./components/Footer/Footer";
 import Cart from "./components/Cart/Cart";
 import LoginModal from "./components/LoginModal/LoginModal";
 import AddItemModal from "./components/AddItemModal/AddItemModal";
+import SignOutModal from "./components/SignOutModal/SignOutModal";
 
 import { getThirdPartyItems } from "./utils/ThirdPartyApi";
 import { fallbackItems } from "./utils/Data";
@@ -78,6 +79,10 @@ function App() {
     setActiveModal("");
   }
 
+  function openSignOutModal() {
+    setActiveModal("sign-out");
+  }
+
   function handleLoginSubmit({ email, password, name }) {
     authorize(email, password)
       .then((data) => {
@@ -102,13 +107,12 @@ function App() {
   }
 
   function handleAddToCart(item) {
-    setCartItems((prevItems) => [...prevItems, item]);
-
-    if (isLoggedIn) {
-      navigate("/cart");
-    } else {
+    if (!isLoggedIn) {
       openLoginModal();
+      return;
     }
+
+    setCartItems((prevItems) => [...prevItems, item]);
   }
 
   function handleRemoveFromCart(idToRemove) {
@@ -121,11 +125,12 @@ function App() {
     setVisibleCount((prevCount) => prevCount + 3);
   }
 
-  function handleSignOut() {
+  function handleConfirmSignOut() {
     localStorage.removeItem("jwt");
     setIsLoggedIn(false);
     setCurrentUser(null);
     setCartItems([]);
+    closeActiveModal();
     navigate("/");
   }
 
@@ -144,7 +149,7 @@ function App() {
         cartCount={cartItems.length}
         isLoggedIn={isLoggedIn}
         currentUser={currentUser}
-        onLogout={handleSignOut}
+        onSignOutClick={openSignOutModal}
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
       />
@@ -161,6 +166,8 @@ function App() {
               hasMore={hasMore}
               searchTerm={searchTerm}
               onAddToCart={handleAddToCart}
+              isLoggedIn={isLoggedIn}
+              onLoginClick={openLoginModal}
             />
           }
         />
@@ -190,6 +197,13 @@ function App() {
         <AddItemModal
           onClose={closeActiveModal}
           onAddItem={handleAddItemSubmit}
+        />
+      )}
+
+      {activeModal === "sign-out" && (
+        <SignOutModal
+          onClose={closeActiveModal}
+          onConfirmSignOut={handleConfirmSignOut}
         />
       )}
     </div>
